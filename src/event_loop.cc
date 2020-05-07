@@ -165,13 +165,13 @@ void event_loop::del_ioev(int fd)
     listening.erase(fd);//从监听集合中删除
     ::epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL);
 }
-
+//在什么时间执行
 int event_loop::run_at(timer_callback cb, void* args, uint64_t ts)
 {
     timer_event te(cb, args, ts);
     return _timer_que->add_timer(te);
 }
-
+//在多长时间之后执行
 int event_loop::run_after(timer_callback cb, void* args, int sec, int millis)
 {
     struct timespec tpc;
@@ -181,7 +181,7 @@ int event_loop::run_after(timer_callback cb, void* args, int sec, int millis)
     timer_event te(cb, args, ts);
     return _timer_que->add_timer(te);
 }
-
+//每隔多长时间执行一次
 int event_loop::run_every(timer_callback cb, void* args, int sec, int millis)
 {
     uint32_t interval = sec * 1000 + millis;

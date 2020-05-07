@@ -37,7 +37,7 @@ void msg_comming_cb(event_loop* loop, int fd, void *args)
         }
     }
 }
-
+//线程入口函数
 void* thread_domain(void* args)
 {
     thread_queue<queue_msg>* queue = (thread_queue<queue_msg>*)args;
@@ -68,11 +68,12 @@ thread_pool::thread_pool(int thread_cnt): _curr_index(0), _thread_cnt(thread_cnt
 
 thread_queue<queue_msg>* thread_pool::get_next_thread()
 {
+    //通过轮询的方式取出线程
     if (_curr_index == _thread_cnt)
         _curr_index = 0;
     return _pool[_curr_index++];
 }
-
+//向指定线程分发任务
 void thread_pool::run_task(int thd_index, pendingFunc task, void* args)
 {
     queue_msg msg;
@@ -82,7 +83,7 @@ void thread_pool::run_task(int thd_index, pendingFunc task, void* args)
     thread_queue<queue_msg>* cq = _pool[thd_index];
     cq->send_msg(msg);
 }
-
+//向全部线程分发任务
 void thread_pool::run_task(pendingFunc task, void* args)
 {
     for (int i = 0;i < _thread_cnt; ++i)

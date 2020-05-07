@@ -22,12 +22,12 @@ public:
 
     int add_msg_cb(int cmdid, msg_callback* msg_cb, void* usr_data)
     {
-        if (_dispatcher.find(cmdid) != _dispatcher.end()) return -1;
+        if (_dispatcher.find(cmdid) != _dispatcher.end()) return -1;//如果已经设置了该消息类型的回调函数
         _dispatcher[cmdid] = msg_cb;
         _args[cmdid] = usr_data;
         return 0;
     }
-
+    //判断该消息类型是否设置了回调函数
     bool exist(int cmdid) const { return _dispatcher.find(cmdid) != _dispatcher.end(); }
 
     void cb(const char* data, uint32_t len, int cmdid, net_commu* commu)

@@ -8,6 +8,8 @@
 timer_queue::timer_queue(): _count(0), _next_timer_id(0), _pioneer(-1/*= uint32_t max*/)
 {
     //构造函数中初始化了一个timerfd，使用了系统实时时间，非阻塞
+    //CLOCK_REALTIME:系统实时时间,随系统实时时间改变而改变,即从UTC1970-1-1 0:0:0开始计时,
+    //中间时刻如果系统时间被用户改成其他,则对应的时间相应改变
     _timerfd = ::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);//使用了timerfd
 
     exit_if(_timerfd == -1, "timerfd_create()");
@@ -95,7 +97,9 @@ void timer_queue::reset_timo()
 
     if (_pioneer != (uint64_t)-1)
     {
+        //_pioneer的单位是毫秒，而tv_sec的单位是秒
         new_ts.it_value.tv_sec = _pioneer / 1000;
+        //1毫秒=1000 000纳秒
         new_ts.it_value.tv_nsec = (_pioneer % 1000) * 1000000;
     }
     //when _pioneer = -1, new_ts = 0 will disarms the timer

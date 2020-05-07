@@ -1,6 +1,8 @@
 #ifndef __THREAD_QUEUE_H__
 #define __THREAD_QUEUE_H__
-
+/*
+线程载体，初始化了eventfd用于主线程与子线程进行通信；
+*/
 #include <queue>
 #include <stdio.h>
 #include <stdlib.h>
