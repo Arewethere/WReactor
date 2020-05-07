@@ -52,7 +52,7 @@ void whenConnectDone(tcp_client* client, void* args)
 void* domain(void* args)
 {
     event_loop loop;
-    tcp_client client(&loop, "127.0.0.1", 12315);//创建TCP客户端
+    tcp_client client(&loop, "127.0.0.1", 12345);//创建TCP客户端
 
     testQPS qps;
     client.add_msg_cb(1, buz, (void*)&qps);//设置：当收到消息id=1的消息时的回调函数
