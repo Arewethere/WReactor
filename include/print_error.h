@@ -1,3 +1,7 @@
+/*
+打印错误
+*/
+
 #ifndef __PRINT_ERROR_H__
 #define __PRINT_ERROR_H__
 

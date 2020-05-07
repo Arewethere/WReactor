@@ -17,6 +17,7 @@ public:
     thread_queue(): _loop(NULL)
     {
         ::pthread_mutex_init(&_mutex, NULL);
+        //使用eventfd进行线程间通信
         _evfd = ::eventfd(0, EFD_NONBLOCK);
         if (_evfd == -1)
         {

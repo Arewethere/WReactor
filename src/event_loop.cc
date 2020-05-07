@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <time.h>
 
+//执行定时器到期事件
 void timerqueue_cb(event_loop* loop, int fd, void *args)
 {
     std::vector<timer_event> fired_evs;
@@ -21,11 +22,14 @@ void timerqueue_cb(event_loop* loop, int fd, void *args)
 
 event_loop::event_loop()
 {
+    //在构造函数中创建epoll
     _epfd = ::epoll_create1(0);
     exit_if(_epfd == -1, "when epoll_create1()");
+
     _timer_que = new timer_queue();
     exit_if(_timer_que == NULL, "when new timer_queue");
     //register timer event to event loop
+    //在构造函数中注册定时器事件
     add_ioev(_timer_que->notifier(), timerqueue_cb, EPOLLIN, _timer_que);
 }
 
@@ -38,20 +42,24 @@ void event_loop::process_evs()
         int nfds = ::epoll_wait(_epfd, _fired_evs, MAXEVENTS, 10);
         for (int i = 0;i < nfds; ++i)
         {
+            //从map中找到fd对应的io_event事件的迭代器
             it = _io_evs.find(_fired_evs[i].data.fd);
             assert(it != _io_evs.end());
+            //
             io_event* ev = &(it->second);
-
+            //如果返回的是可读事件，则调用相应的读回调函数
             if (_fired_evs[i].events & EPOLLIN)
             {
                 void *args = ev->rcb_args;
                 ev->read_cb(this, _fired_evs[i].data.fd, args);
             }
+            //如果是可写事件，则调用相应的写回调函数
             else if (_fired_evs[i].events & EPOLLOUT)
             {
                 void *args = ev->wcb_args;
                 ev->write_cb(this, _fired_evs[i].data.fd, args);
             }
+            //EPOLLHUP是指对端关闭了连接
             else if (_fired_evs[i].events & (EPOLLHUP | EPOLLERR))
             {
                 if (ev->read_cb)
@@ -80,26 +88,32 @@ void event_loop::process_evs()
  * if EPOLLOUT in mask, EPOLLIN must not in mask;
  * if want to register EPOLLOUT | EPOLLIN event, just call add_ioev twice!
  */
+
+//添加IO事件
 void event_loop::add_ioev(int fd, io_callback* proc, int mask, void* args)
 {
-    int f_mask = 0;//finial mask
+    int f_mask = 0;//final mask
     int op;
     ioev_it it = _io_evs.find(fd);
+    //如果map中没有这个fd，就让op=EPOLL_CTL_ADD，最后真正设置f_mask就是mask
     if (it == _io_evs.end())
     {
         f_mask = mask;
         op = EPOLL_CTL_ADD;
     }
+    //如果有这个fd，就让op=EPOLL_CTL_MOD，最后真正设置的f_mask就是之前的mask|mask
     else
     {
         f_mask = it->second.mask | mask;
         op = EPOLL_CTL_MOD;
     }
+    //如果要监听读事件，设置相应的读回调函数
     if (mask & EPOLLIN)
     {
         _io_evs[fd].read_cb = proc;
         _io_evs[fd].rcb_args = args;
     }
+    //如果要监听的是可写事件，设置相应的写事件回调函数
     else if (mask & EPOLLOUT)
     {
         _io_evs[fd].write_cb = proc;
@@ -118,12 +132,15 @@ void event_loop::add_ioev(int fd, io_callback* proc, int mask, void* args)
 void event_loop::del_ioev(int fd, int mask)
 {
     ioev_it it = _io_evs.find(fd);
+    //如果没有这个fd就直接返回
     if (it == _io_evs.end())
         return ;
+
     int& o_mask = it->second.mask;
     int ret;
     //remove mask from o_mask
     o_mask = o_mask & (~mask);
+    //如果改变后的原始mask没有要监听的事件了，就直接在epoll上删除
     if (o_mask == 0)
     {
         _io_evs.erase(it);
@@ -131,6 +148,7 @@ void event_loop::del_ioev(int fd, int mask)
         error_if(ret == -1, "epoll_ctl EPOLL_CTL_DEL");
         listening.erase(fd);//从监听集合中删除
     }
+    //如果改变后的的mask还有要监听的时间，再重新MOD
     else
     {
         struct epoll_event event;
@@ -140,7 +158,7 @@ void event_loop::del_ioev(int fd, int mask)
         error_if(ret == -1, "epoll_ctl EPOLL_CTL_MOD");
     }
 }
-
+//直接删除监听的fd
 void event_loop::del_ioev(int fd)
 {
     _io_evs.erase(fd);
@@ -173,7 +191,7 @@ int event_loop::run_every(timer_callback cb, void* args, int sec, int millis)
     timer_event te(cb, args, ts, interval);
     return _timer_que->add_timer(te);
 }
-
+//删除定时器
 void event_loop::del_timer(int timer_id)
 {
     _timer_que->del_timer(timer_id);

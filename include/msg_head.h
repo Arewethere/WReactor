@@ -5,19 +5,20 @@ class event_loop;
 
 struct commu_head
 {
-    int cmdid;
+    int cmdid;//消息类型
     int length;
 };
 
 //for accepter communicate with connections
 //for give task to sub-thread
+//便于主线程与子线程通信，给子线程下发任务
 struct queue_msg
 {
-    enum MSG_TYPE
+    enum MSG_TYPE   //给子线程传递消息的类型
     {
-        NEW_CONN,
-        STOP_THD,
-        NEW_TASK,
+        NEW_CONN,   //新的连接
+        STOP_THD,   //停止线程
+        NEW_TASK,   //新的任务
     };
     MSG_TYPE cmd_type;
 

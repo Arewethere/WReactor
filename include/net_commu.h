@@ -1,3 +1,6 @@
+/*
+定义这样一个基类便于实现运行时多态
+*/
 #ifndef __NET_COMMU_H__
 #define __NET_COMMU_H__
 

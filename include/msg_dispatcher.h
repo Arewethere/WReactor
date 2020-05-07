@@ -6,6 +6,13 @@
 #include <ext/hash_map>
 #include "net_commu.h"
 
+/*
+msg_dispatcher类的作用就是根据不同的消息类型调用相应的回调函数
+msg_dispatcher数据成员中有两个map
+_dispatcher中保存着cmdid与msg_callback的映射
+_args中保存着cmdid与msg_callback的参数的映射
+*/
+
 typedef void msg_callback(const char* data, uint32_t len, int cmdid, net_commu* commu, void* usr_data);
 
 class msg_dispatcher

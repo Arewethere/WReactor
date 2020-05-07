@@ -1,3 +1,6 @@
+/*
+定义IO事件和定时器事件
+*/
 #ifndef __EVENT_BASE_H__
 #define __EVENT_BASE_H__
 
