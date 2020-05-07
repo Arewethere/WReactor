@@ -1,3 +1,5 @@
+/*配置文件*/
+
 #ifndef __CONFIG_READER_HEADER__
 #define __CONFIG_READER_HEADER__
 

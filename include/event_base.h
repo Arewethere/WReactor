@@ -31,10 +31,10 @@ struct timer_event//注册的Timer事件
     {
     }
 
-    timer_callback* cb;
-    void* cb_data;
-    uint64_t ts;
-    uint32_t interval;//interval millis
+    timer_callback* cb; //定时器到期回调函数
+    void* cb_data;      //定时器到期回调函数参数
+    uint64_t ts;        //定时事件
+    uint32_t interval;//interval millis 循环定时时间
     int timer_id;
 };
 

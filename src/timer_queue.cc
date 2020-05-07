@@ -7,12 +7,15 @@
 
 timer_queue::timer_queue(): _count(0), _next_timer_id(0), _pioneer(-1/*= uint32_t max*/)
 {
-    _timerfd = ::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
+    //构造函数中初始化了一个timerfd，使用了系统实时时间，非阻塞
+    _timerfd = ::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);//使用了timerfd
+
     exit_if(_timerfd == -1, "timerfd_create()");
 }
 
 timer_queue::~timer_queue()
 {
+    //析构函数中关闭
     ::close(_timerfd);
 }
 
@@ -40,7 +43,7 @@ void timer_queue::del_timer(int timer_id)
     int pos = it->second;
     heap_del(pos);
 
-    if (_count == 0)
+    if (_count == 0)    //如果容器中没有了定时器
     {
         _pioneer = -1;
         reset_timo();
@@ -51,15 +54,17 @@ void timer_queue::del_timer(int timer_id)
         reset_timo();
     }
 }
-
+//得到所有超时事件
 void timer_queue::get_timo(std::vector<timer_event>& fired_evs)
 {
     std::vector<timer_event> _reuse_lst;
+    //因为
     while (_count != 0 && _pioneer == _event_lst[0].ts)
     {
         timer_event te = _event_lst[0];
+        //fired_evs是一个传出数组；
         fired_evs.push_back(te);
-        if (te.interval)
+        if (te.interval)//如果是循环定时器
         {
             te.ts += te.interval;
             _reuse_lst.push_back(te);
@@ -82,7 +87,7 @@ void timer_queue::get_timo(std::vector<timer_event>& fired_evs)
         reset_timo();
     }
 }
-
+//将最近的到时事件加到timerfd上
 void timer_queue::reset_timo()
 {
     struct itimerspec old_ts, new_ts;
