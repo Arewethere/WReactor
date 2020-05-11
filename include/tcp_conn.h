@@ -1,3 +1,7 @@
+/*
+一个TCP连接的抽象
+*/
+
 #ifndef __TCP_CONN_H__
 #define __TCP_CONN_H__
 
@@ -8,6 +12,7 @@
 class tcp_conn: public net_commu
 {
 public:
+    //二段式构造，绑定一个connfd
     tcp_conn(int connfd, event_loop* loop) { init(connfd, loop); }
 
     void init(int connfd, event_loop* loop);

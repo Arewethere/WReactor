@@ -2,7 +2,7 @@
 #define __MSG_HEAD_H__
 
 class event_loop;
-//消息头部，记录相应的消息类型和消息长度，用于处理粘包时间
+//消息头部，记录相应的消息类型和消息长度，用于处理粘包事件
 struct commu_head
 {
     int cmdid;//消息类型

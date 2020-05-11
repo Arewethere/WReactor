@@ -14,7 +14,7 @@
 #include "tcp_server.h"
 #include "print_error.h"
 #include "config_reader.h"
-
+//接受连接的回调函数
 void accepter_cb(event_loop* loop, int fd, void *args)
 {
     tcp_server* server = (tcp_server*)args;
@@ -47,7 +47,7 @@ tcp_server::tcp_server(event_loop* loop, const char* ip, uint16_t port): _keepal
     //create socket
     _sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     exit_if(_sockfd == -1, "socket()");
-
+    //打开或者创建一个文件，_reservfd是该文件的文件描述符
     _reservfd = ::open("/tmp/reactor_accepter", O_CREAT | O_RDONLY | O_CLOEXEC, 0666);
     error_if(_reservfd == -1, "open()");
 
@@ -59,6 +59,7 @@ tcp_server::tcp_server(event_loop* loop, const char* ip, uint16_t port): _keepal
     servaddr.sin_port = htons(port);
 
     int opend = 1;
+    //打开地址复用功能
     ret = ::setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opend, sizeof(opend));
     error_if(ret < 0, "setsockopt SO_REUSEADDR");
 
@@ -75,8 +76,10 @@ tcp_server::tcp_server(event_loop* loop, const char* ip, uint16_t port): _keepal
     _addrlen = sizeof (struct sockaddr_in);
 
     //if mode is multi-thread reactor, create thread pool
+    //读取线程池数量
     int thread_cnt = config_reader::ins()->GetNumber("reactor", "threadNum", 0);
     _thd_pool = NULL;
+    //如果读取到的线程池数量不是0，则是多线程模式，创建线程池
     if (thread_cnt)
     {
         _thd_pool = new thread_pool(thread_cnt);

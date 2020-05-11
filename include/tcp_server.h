@@ -30,10 +30,10 @@ public:
     thread_pool* threadPool() { return _thd_pool; }
 
 private:
-    int _sockfd;
+    int _sockfd;        //监听文件描述符
     int _reservfd;
-    event_loop* _loop;
-    thread_pool* _thd_pool;
+    event_loop* _loop;  //主线程中运行的loop
+    thread_pool* _thd_pool;//线程池
     struct sockaddr_in _connaddr;
     socklen_t _addrlen;
     bool _keepalive;
@@ -43,8 +43,8 @@ private:
     static int _curr_conns;
     static pthread_mutex_t _mutex;
 public:
-    static msg_dispatcher dispatcher;
-    static tcp_conn** conns;
+    static msg_dispatcher dispatcher;//事件分发器，只存在于主线程中
+    static tcp_conn** conns;    //连接池
 
     typedef void (*conn_callback)(net_commu* com);
 
