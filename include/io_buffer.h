@@ -13,11 +13,11 @@ struct io_buffer
     io_buffer(int size): 
     capacity(size), length(0), head(0), next(NULL)
     {
-        data = new char[size];
+        data = new char[size];      //构造函数中申请内存
         assert(data);
     }
 
-    void clear()
+    void clear()                    //清空buffer
     {
         length = head = 0;
     }
@@ -48,10 +48,10 @@ struct io_buffer
         head += len;
     }
 
-    int capacity;
+    int capacity;       //buffer容量
     int length;
-    int head;
-    io_buffer* next;
+    int head;           //head未处理数据在buffer中的头部
+    io_buffer* next;    //模拟链表，指针指向下一个buffer
     char* data;
 };
 
