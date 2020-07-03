@@ -60,6 +60,7 @@ public:
     void set_loop(event_loop* loop, io_callback* proc, void* args = NULL)
     {
         _loop = loop;
+        //将_evfd放到epoll上监听
         _loop->add_ioev(_evfd, proc, EPOLLIN, args);
     }
 

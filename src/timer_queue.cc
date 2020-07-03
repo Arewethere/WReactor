@@ -20,7 +20,7 @@ timer_queue::~timer_queue()
     //析构函数中关闭
     ::close(_timerfd);
 }
-
+//像定时器堆中添加定时事件
 int timer_queue::add_timer(timer_event& te)
 {
     te.timer_id = _next_timer_id++;
@@ -33,7 +33,7 @@ int timer_queue::add_timer(timer_event& te)
     }
     return te.timer_id;
 }
-
+//根据定时事件id，删除定时器事件
 void timer_queue::del_timer(int timer_id)
 {
     mit it = _position.find(timer_id);
@@ -56,11 +56,12 @@ void timer_queue::del_timer(int timer_id)
         reset_timo();
     }
 }
-//得到所有超时事件
+//得到相同时间的定时事件数组，就是每次相同时间的定时器事件只触发一次，
+//然后执行整个传出数组的定时到期回调函数。
 void timer_queue::get_timo(std::vector<timer_event>& fired_evs)
 {
     std::vector<timer_event> _reuse_lst;
-    //因为
+
     while (_count != 0 && _pioneer == _event_lst[0].ts)
     {
         timer_event te = _event_lst[0];

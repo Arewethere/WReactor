@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <time.h>
 
-//执行定时器到期事件
+//执行定时器到期事件，取出所有到期事件，统一执行
 void timerqueue_cb(event_loop* loop, int fd, void *args)
 {
     std::vector<timer_event> fired_evs;
@@ -25,20 +25,21 @@ event_loop::event_loop()
     //在构造函数中创建epoll
     _epfd = ::epoll_create1(0);
     exit_if(_epfd == -1, "when epoll_create1()");
-
+    //创建一个定时器
     _timer_que = new timer_queue();
     exit_if(_timer_que == NULL, "when new timer_queue");
     //register timer event to event loop
-    //在构造函数中注册定时器事件
+    //在构造函数中注册定时器事件，关注timerfd的可读事件
     add_ioev(_timer_que->notifier(), timerqueue_cb, EPOLLIN, _timer_que);
 }
-
+//执行epoll循环
 void event_loop::process_evs()
 {
     while (true)
     {
         //handle file event
         ioev_it it;
+        //返回活跃事件个数
         int nfds = ::epoll_wait(_epfd, _fired_evs, MAXEVENTS, 10);
         for (int i = 0;i < nfds; ++i)
         {
@@ -148,7 +149,7 @@ void event_loop::del_ioev(int fd, int mask)
         error_if(ret == -1, "epoll_ctl EPOLL_CTL_DEL");
         listening.erase(fd);//从监听集合中删除
     }
-    //如果改变后的的mask还有要监听的时间，再重新MOD
+    //如果改变后的的mask还有要监听的事件，再重新MOD
     else
     {
         struct epoll_event event;

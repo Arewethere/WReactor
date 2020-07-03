@@ -77,6 +77,7 @@ public:
 
     static buffer_pool* ins()
     {
+        //单例模式，保证在多个线程中只调用一次init()函数
         pthread_once(&_once, init);
         return _ins;
     }

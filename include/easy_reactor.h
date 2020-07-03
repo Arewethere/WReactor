@@ -1,3 +1,7 @@
+/*
+包含了必要的头文件，使用时只需要include此文件即可
+*/
+
 #ifndef __EASY_REACTOR_H__
 #define __EASY_REACTOR_H__
 

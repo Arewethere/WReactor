@@ -1,3 +1,6 @@
+/*
+定时器堆
+*/
 #ifndef __TIMER_QUEUE_H__
 #define __TIMER_QUEUE_H__
 
@@ -31,7 +34,7 @@ private:
 
     std::vector<timer_event> _event_lst;            //装有定时器到期事件的容器
     typedef std::vector<timer_event>::iterator vit;
-
+    //key为定时事件id，value是定时事件在vector中的存储位置
     __gnu_cxx::hash_map<int, int> _position;
 
     typedef __gnu_cxx::hash_map<int, int>::iterator mit;
@@ -39,7 +42,7 @@ private:
     int _count;
     int _next_timer_id;
     int _timerfd;
-    //最近的定时器到时时间
+    //最近的定时器到时时间，就是已经在timerfd上注册的时间
     uint64_t _pioneer;//recent timer's millis
 };
 

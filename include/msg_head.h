@@ -1,3 +1,15 @@
+/*
+commu_head类：封装了消息类型和消息长度
+cmdid消息类型;
+length消息长度;
+
+queue_msg类：作用是给主线程给线程池中线程通信
+消息类型有NEW_CONN、STOP_THD、NEW_TASK;
+如果是新的连接下发connfd;
+如果是新任务下发task函数;
+
+*/
+
 #ifndef __MSG_HEAD_H__
 #define __MSG_HEAD_H__
 

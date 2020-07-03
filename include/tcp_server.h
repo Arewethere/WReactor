@@ -11,6 +11,7 @@
 class tcp_server
 {
 public:
+    //构造函数，创建server需要指定ip地址和端口号，并且传进去一个eventloop
     tcp_server(event_loop* loop, const char* ip, uint16_t port);
 
     ~tcp_server();//tcp_server类使用时往往具有程序的完全生命周期，其实并不需要析构函数

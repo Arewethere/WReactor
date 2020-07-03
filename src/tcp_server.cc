@@ -20,8 +20,8 @@ void accepter_cb(event_loop* loop, int fd, void *args)
     tcp_server* server = (tcp_server*)args;
     server->do_accept();
 }
-
-tcp_conn** tcp_server::conns = NULL;
+9
+tcp_conn** tcp_server::conns = NULL;//连接池
 int tcp_server::_conns_size = 0;
 int tcp_server::_max_conns = 0;
 int tcp_server::_curr_conns = 0;
@@ -45,6 +45,7 @@ tcp_server::tcp_server(event_loop* loop, const char* ip, uint16_t port): _keepal
     }
 
     //create socket
+    //非阻塞socket
     _sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     exit_if(_sockfd == -1, "socket()");
     //打开或者创建一个文件，_reservfd是该文件的文件描述符
@@ -59,7 +60,7 @@ tcp_server::tcp_server(event_loop* loop, const char* ip, uint16_t port): _keepal
     servaddr.sin_port = htons(port);
 
     int opend = 1;
-    //打开地址复用功能
+    //打开地址复用功能，SO_REUSEADDR选项：允许重用本地地址和端口
     ret = ::setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opend, sizeof(opend));
     error_if(ret < 0, "setsockopt SO_REUSEADDR");
 
@@ -91,13 +92,14 @@ tcp_server::tcp_server(event_loop* loop, const char* ip, uint16_t port): _keepal
     int next_fd = ::dup(1);
     _conns_size = _max_conns + next_fd;
     ::close(next_fd);
-
+    //连接池，池中元素是connection对象指针
     conns = new tcp_conn*[_conns_size];
     exit_if(conns == NULL, "new conns[%d]", _conns_size);
     for (int i = 0;i < _max_conns + next_fd; ++i)
         conns[i] = NULL;
 
     //add accepter event
+    //将监听文件描述符放到epoll上监听
     _loop->add_ioev(_sockfd, accepter_cb, EPOLLIN, this);
 }
 
@@ -136,6 +138,7 @@ void tcp_server::do_accept()
                 exit_log("accept()");
             }
         }
+        //如果对象池满了
         else if (conn_full)
         {
             ::close(connfd);

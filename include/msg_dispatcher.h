@@ -19,7 +19,7 @@ class msg_dispatcher
 {
 public:
     msg_dispatcher() {}
-
+    //添加消息id对应的回调函数
     int add_msg_cb(int cmdid, msg_callback* msg_cb, void* usr_data)
     {
         if (_dispatcher.find(cmdid) != _dispatcher.end()) return -1;//如果已经设置了该消息类型的回调函数
@@ -29,7 +29,7 @@ public:
     }
     //判断该消息类型是否设置了回调函数
     bool exist(int cmdid) const { return _dispatcher.find(cmdid) != _dispatcher.end(); }
-
+    //执行消息id对应的回调函数
     void cb(const char* data, uint32_t len, int cmdid, net_commu* commu)
     {
         assert(exist(cmdid));
@@ -39,7 +39,9 @@ public:
     }
 
 private:
+    //消息id和其回调函数对应的map
     __gnu_cxx::hash_map<int, msg_callback*> _dispatcher;
+    //消息id和其回调函数参数对应的map
     __gnu_cxx::hash_map<int, void*> _args;
 };
 
